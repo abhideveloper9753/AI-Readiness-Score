@@ -1,7 +1,17 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "paths": {
       "@/*": ["./*"]
-    }
-  }
+    },
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "strict": false,
+    "moduleResolution": "bundler",
+    "allowJs": true,
+    "skipLibCheck": true
+  },
+  "include": ["**/*.js", "**/*.jsx"],
+  "exclude": ["node_modules", ".next"]
 }
