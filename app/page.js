@@ -1,66 +1,72 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+
+import { useState } from "react";
+import UrlForm from "../components/UrlForm";
+import ScoreCard from "../components/ScoreCard";
+import IssuesList from "../components/IssuesList";
+import { runAudit } from "../utils/audit";
 
 export default function Home() {
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleAudit = async (url) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await runAudit(url);
+      setResult(data);
+    } catch (err) {
+      setError("Failed to analyze URL. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.js file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="container">
+      <div style={{ textAlign: "center", marginBottom: "40px" }}>
+        <h1 style={{ fontSize: "32px", color: "#333", marginBottom: "8px" }}>AI Readiness Audit</h1>
+        <p style={{ fontSize: "16px", color: "#666", margin: 0 }}>
+          Analyze how well a website is structured for AI and search engines
+        </p>
+      </div>
+
+      <UrlForm onSubmit={handleAudit} loading={loading} />
+
+      {loading && (
+        <div style={{
+          textAlign: "center",
+          marginTop: "30px",
+          padding: "20px",
+          color: "#667eea",
+          fontWeight: "600"
+        }}>
+          🔍 Analyzing website...
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      )}
+
+      {error && (
+        <div style={{
+          marginTop: "20px",
+          padding: "15px",
+          background: "#fee",
+          border: "1px solid #f99",
+          borderRadius: "8px",
+          color: "#c33",
+          fontSize: "14px"
+        }}>
+          {error}
         </div>
-      </main>
+      )}
+
+      {result && !loading && (
+        <>
+          <ScoreCard score={result.score} />
+          <IssuesList issues={result.issues} />
+        </>
+      )}
     </div>
-  );
-}
+  )
+};
